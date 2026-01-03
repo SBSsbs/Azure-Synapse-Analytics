@@ -4,11 +4,11 @@
 
 Azure Synapse Analytics fournit une plateforme d'analyse de données unique et consolidée pour l'analyse de données de bout en bout. Dans cet exercice, vous allez explorer différentes manières d'ingérer et d'explorer des données. Cet exercice est conçu comme une vue d'ensemble de haut niveau des différentes fonctionnalités de base d'Azure Synapse Analytics. D'autres exercices sont disponibles pour explorer plus en détail des fonctionnalités spécifiques.
 
-##Avant de commencer
+## Avant de commencer
 
 Vous aurez besoin d'un abonnement Azure dans lequel vous disposez d'un accès de niveau administratif.
 
-##Provisionner un espace de travail Azure Synapse Analytics
+## Provisionner un espace de travail Azure Synapse Analytics
 
 Un espace de travail Azure Synapse Analytics fournit un point central pour la gestion des données et des runtimes de traitement des données. Vous pouvez provisionner un espace de travail à l'aide de l'interface interactive du portail Azure, ou vous pouvez déployer un espace de travail et les ressources qu'il contient à l'aide d'un script ou d'un modèle. Dans la plupart des scénarios de production, il est préférable d'automatiser le provisionnement avec des scripts et des modèles afin de pouvoir intégrer le déploiement des ressources dans un processus de développement et d'exploitation (DevOps) reproductible.
 
@@ -17,7 +17,7 @@ Dans cet exercice, vous utiliserez une combinaison d'un script PowerShell et d'u
 2. Utilisez le bouton [>_] à droite de la barre de recherche en haut de la page pour créer un nouveau Cloud Shell dans le portail Azure, en sélectionnant un environnement PowerShell.
 3. Créer un stockage si vous y êtes invité. 
  
-(./images/001.png)
+![Azure portal with a cloud shell pane](./images/001.png)
 
 ## Prérequis
 
