@@ -41,7 +41,41 @@ cd './synapse/Lab 01/01'
 9. Si vous y êtes invité, choisissez l'abonnement que vous souhaitez utiliser (cela ne se produira que si vous avez accès à plusieurs abonnements Azure).
 10. Lorsque vous y êtes invité, entrez un mot de passe approprié à définir pour votre pool SQL Azure Synapse.
 11. Attendez que le script se termine - cela prend généralement environ 20 minutes, mais dans certains cas, cela peut prendre plus de temps.
-Découvrez Synapse Studio
+
+##Mise en place de l’environnement du lab avec le script PowerShell
+
+Dans cette partie du lab, nous allons provisionner automatiquement l’ensemble de l’environnement Azure Synapse Analytics qui sera utilisé tout au long de l'exercie. Cette tâche consiste à exécuter un script PowerShell qui déploie, via de l’Infrastructure as Code, toutes les ressources nécessaires à un scénario Data Engineering complet : un **Data Lake Azure (ADLS Gen2)** pour le stockage des données, un **workspace Synapse** servant de point central d’orchestration, un **Spark pool** pour les traitements distribués, ainsi qu’un **Dedicated SQL pool** jouant le rôle de couche Data Warehouse. 
+Le script configure également les droits d’accès (**RBAC**) entre les services, initialise le **schéma analytique** (tables de faits et de dimensions) et charge des jeux de données de référence. 
+L’objectif n’est pas seulement de disposer d’un environnement prêt à l’emploi, mais surtout de comprendre ce qui est déployé en arrière-plan, comment les différents composants interagissent, et pourquoi ces choix correspondent à une architecture Data Engineering moderne et industrialisable.
+
+``` Clear-Host ```
+
+Action : nettoie la console.
+
+Intérêt : améliore la lisibilité pendant une démo/lab.
+
+write-host "Starting script at $(Get-Date)"
+
+Action : log de démarrage avec horodatage.
+
+Intérêt : traçabilité (utile quand plusieurs participants exécutent le setup).
+
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+
+Action : définit PSGallery comme “Trusted”.
+
+Intérêt : évite les prompts interactifs au moment d’installer des modules → exécution fluide en salle.
+
+Install-Module -Name Az.Synapse -Force
+
+Action : installe le module PowerShell Az.Synapse.
+
+Ressource/technos : module client pour piloter Synapse via PowerShell.
+
+Intérêt Data Eng : illustre l’automatisation (scripts/IaC) : on ne clique pas dans le portail, on industrialise.
+
+##Découvrez Synapse Studio
+
 Synapse Studio est un portail Web dans lequel vous pouvez gérer et utiliser les ressources de votre espace de travail Azure Synapse Analytics.
 12. Une fois l'exécution du script d'installation terminée, dans le portail Azure, accédez au groupe de ressources dp203-xxxxxxx qu'il a créé et notez que ce groupe de ressources contient votre espace de travail Synapse.
  
