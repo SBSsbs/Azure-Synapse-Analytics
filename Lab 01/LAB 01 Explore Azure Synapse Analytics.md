@@ -217,6 +217,7 @@ Ce script PowerShell exécuté se présente comme un pipeline d’industrialisat
 ## Découvrez Synapse Studio
 
 Synapse Studio est un portail Web dans lequel vous pouvez gérer et utiliser les ressources de votre espace de travail Azure Synapse Analytics.
+
 12. Une fois l'exécution du script d'installation terminée, dans le portail Azure, accédez au groupe de ressources semeh-xxxxxxx qu'il a créé et notez que ce groupe de ressources contient votre espace de travail Synapse.
  
 13. Un compte de stockage pour votre lac de données, un pool Apache Spark (Apache Spark pool), un Pool d'explorateur de données (Data Explorer pool) et un pool SQL dédié (Dedicated SQL pool) comme indiqué dans la figure suivant:
@@ -228,18 +229,28 @@ Synapse Studio est un portail Web dans lequel vous pouvez gérer et utiliser les
  ![Azure portal with a cloud shell pane](./images/004.png)
 
 Synapse Studio est une interface Web que vous pouvez utiliser pour travailler avec votre espace de travail Synapse Analytics.
+
 15. Sur le côté gauche de **Synapse Studio**, utilisez l'icône **››** pour développer le menu - cela révèle les différentes pages de Synapse Studio que vous utiliserez pour gérer les ressources et effectuer des tâches d'analyse de données, comme illustré ici :
 
  ![Azure portal with a cloud shell pane](./images/005.png)
  
-16. Affichez la page Données (Data) et notez qu'il existe deux onglets contenant des sources de données :
-─	Un onglet Workspace contenant les bases de données définies dans l'espace de travail (y compris les bases de données SQL dédiées et les bases de données Data Explorer).
-─	Un onglet Linked contenant des sources de données liées à l'espace de travail, y compris le stockage Azure Data Lake.
-      
-17. Affichez la page Develop. C'est ici que vous pouvez définir des scripts et d'autres actifs utilisés pour développer des solutions de traitement de données.
-18. Affichez la page Integrate. Vous utilisez cette page pour gérer les actifs d'ingestion et d'intégration de données ; tels que des pipelines pour transférer et transformer des données entre des sources de données.
-19. Affichez la page Monitor. C'est ici que vous pouvez observer les travaux de traitement de données pendant leur exécution et afficher leur historique.
-20. Affichez la page Manage. C'est là que vous gérez les pools, les runtimes et les autres actifs utilisés dans votre espace de travail Azure Synapse. Voir chacun des onglets de la section Pools Analytics et notez que votre espace de travail comprend les pools suivants :
+16. Affichez la page **Données (Data)** et notez qu'il existe deux onglets contenant des sources de données :
+
+─	Un onglet **Workspace** contenant les bases de données définies dans l'espace de travail (y compris les bases de données SQL dédiées et les bases de données Data Explorer).
+─	Un onglet **Linked** contenant des sources de données liées à l'espace de travail, y compris le stockage Azure Data Lake.
+    ![Azure portal with a cloud shell pane](./images/006.png)  
+
+17. Affichez la page **Develop**. C'est ici que vous pouvez définir des scripts et d'autres actifs utilisés pour développer des solutions de traitement de données.
+ ![Azure portal with a cloud shell pane](./images/007.png)
+ 
+18. Affichez la page **Integrate**. Vous utilisez cette page pour gérer les actifs d'ingestion et d'intégration de données ; tels que des pipelines pour transférer et transformer des données entre des sources de données.
+![Azure portal with a cloud shell pane](./images/008.png)
+
+19. Affichez la page **Monitor**. C'est ici que vous pouvez observer les travaux de traitement de données pendant leur exécution et afficher leur historique.
+![Azure portal with a cloud shell pane](./images/009.png)
+20. Affichez la page **Manage**. C'est là que vous gérez les pools, les runtimes et les autres actifs utilisés dans votre espace de travail Azure Synapse. 
+![Azure portal with a cloud shell pane](./images/010.png)
+Voir chacun des onglets de la section Pools Analytics et notez que votre espace de travail comprend les pools suivants :
 ─	Pools SQL :
 o	Intégré : un pool SQL sans serveur que vous pouvez utiliser à la demande pour explorer ou traiter des données dans un lac de données à l'aide de commandes SQL.
 o	sqlxxxxxxx : un pool SQL dédié qui héberge une base de données d'entrepôt de données relationnelles.
