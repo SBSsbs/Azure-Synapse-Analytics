@@ -45,7 +45,9 @@ cd './synapse/Lab 01/01'
 ##Mise en place de l’environnement du lab avec le script PowerShell
 
 Dans cette partie du lab, nous allons provisionner automatiquement l’ensemble de l’environnement Azure Synapse Analytics qui sera utilisé tout au long de l'exercie. Cette tâche consiste à exécuter un script PowerShell qui déploie, via de l’Infrastructure as Code, toutes les ressources nécessaires à un scénario Data Engineering complet : un **Data Lake Azure (ADLS Gen2)** pour le stockage des données, un **workspace Synapse** servant de point central d’orchestration, un **Spark pool** pour les traitements distribués, ainsi qu’un **Dedicated SQL pool** jouant le rôle de couche Data Warehouse. 
+
 Le script configure également les droits d’accès (**RBAC**) entre les services, initialise le **schéma analytique** (tables de faits et de dimensions) et charge des jeux de données de référence. 
+
 L’objectif n’est pas seulement de disposer d’un environnement prêt à l’emploi, mais surtout de comprendre ce qui est déployé en arrière-plan, comment les différents composants interagissent, et pourquoi ces choix correspondent à une architecture Data Engineering moderne et industrialisable.
 
 ``` Clear-Host ```
