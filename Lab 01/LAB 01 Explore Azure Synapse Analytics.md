@@ -47,7 +47,8 @@ Dans cette partie du lab, nous allons provisionner automatiquement l’ensemble 
 Le script configure également les droits d’accès (**RBAC**) entre les services, initialise le **schéma analytique** (tables de faits et de dimensions) et charge des jeux de données de référence. 
 
 L’objectif n’est pas seulement de disposer d’un environnement prêt à l’emploi, mais surtout de comprendre ce qui est déployé en arrière-plan, comment les différents composants interagissent, et pourquoi ces choix correspondent à une architecture Data Engineering moderne et industrialisable.
-##I. Mise en place de l’environnement du lab avec le script PowerShell##
+
+##1. Mise en place de l’environnement du lab avec le script PowerShell##
 
 
 ``` Clear-Host ```: cette action permet de nettoyer la console et donc améliorer la lisibilité pendant une démo/lab.
@@ -58,7 +59,7 @@ L’objectif n’est pas seulement de disposer d’un environnement prêt à l�
 
 ```Install-Module -Name Az.Synapse -Force```: permet d'installer le module PowerShell Az.Synapse. Il s'agit d'un module client pour piloter Synapse via PowerShell ce qui illustre l’automatisation (scripts/IaC) : on ne clique pas dans le portail, on industrialise.
 
-##II. Gestion du contexte Azure (abonnement)##
+##2. Gestion du contexte Azure (abonnement)##
 
 ``` Get-AzSubscription```: Cette commande permet de lister les subscriptions accessibles par l’utilisateur. Dans un contexte de formation, certains participants peuvent avoir plusieurs abonnements (perso + pro + sandbox) surtout si aucun abonnement n'est propos dans le cadre de la formation. Ceci permet d'éviter de déployer “au mauvais endroit”. On ajoute alors à notre code PowerShell, un bloc de sélection qui permet de choisir la subscription à utiliser. Le script va alors afficher la liste (```Name```, ```Id```), demande à l'utilisateur de sélectionner un index et le lire comme argument en utilisant la commande ```Read-Host```, le valide s'il est correcte puis applique le contexte en utilisant les instructions suivantes: 
 
@@ -66,11 +67,11 @@ L’objectif n’est pas seulement de disposer d’un environnement prêt à l�
 Select-AzSubscription -SubscriptionId $selectedSub
 az account set --subscription $selectedSub
 ```
-##III. Saisie et validation du mot de passe SQL##
+##3. Saisie et validation du mot de passe SQL##
 
 Il s'agit d'une boucle de saisie où le script impose déjà un nom d'utilisateur ```$sqlUser = "SQLUser" ``` demande un mot de passe ```$sqlPassword``` avec une complexité : min 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial parmi ! @ # % ^ & $. Ce login/mot de passe sert ensuite à se connecter au endpoint SQL de Synapse (Dedicated SQL pool / SQL database dans le workspace). Ceci permet de manipuler SQL, charger des données et exécuter des scripts sans dépendre d’Azure AD au départ.
 
-##IV. Enregistrement des Resource Providers Azure##
+##4. Enregistrement des Resource Providers Azure##
 
 ```
 $provider_list = "Microsoft.Synapse", "Microsoft.Sql", "Microsoft.Storage", "Microsoft.Compute"
@@ -81,7 +82,7 @@ foreach ($provider in $provider_list){
 
 Ces instructions permettent d'activer les providers dans la subscription si nécessaire. Ceci permet d'éviter les échecs de déploiement ARM/Bicep du type “The subscription is not registered to use namespace …” ce qui est important lorsqu'il s'agit de manipuler en environnement “neuf” (sandbox formation, nouvel abonnement)
 
-##V. Génération d’un suffixe unique pour nommer les ressources##
+##5. Génération d’un suffixe unique pour nommer les ressources##
 ```
 [string]$suffix = -join ((48..57) + (97..122) | Get-Random -Count 7 | % {[char]$_})
 $resourceGroupName = "semeh-$suffix"
@@ -91,58 +92,35 @@ Ces instructions génèrent un suffixe aléatoire (chiffres + lettres minuscules
 
 Ressources nommées (plus bas) :
 
-- RG : dp203-<suffix>
+- RG : semeh-<suffix>
 - Synapse : synapse<suffix>
 - Storage : datalake<suffix>
 - Spark pool : spark<suffix>
 - SQL database/pool : sql<suffix>
 
-6) Sélection d’une région Azure “compatible”
+##6. Sélection d’une région Azure “compatible”##
 
-Le script :
+En utilisant ce script, on attend un délai aléatoire (0/30/60/90/120s) pour “stagger” les déploiements en classe. puis, on filtre les régions où les providers nécessaires sont disponibles
+et on choisit une région dans une liste préférée. En effet, Synapse n’est pas disponible partout. Certaines régions peuvent être saturées (quotas/stock) pendant une formation. On essaie alors avec ce bloc d'instructions de trouver une région déployable. Ou bien on peut spécifier le nom de la région souhaitée comme argument à l'instruction initiale qui lance le script en choisissant la région comme northeurope, westeurope, etc.
 
-attend un délai aléatoire (0/30/60/90/120s) pour “stagger” les déploiements en classe
-
-filtre les régions où les providers nécessaires sont disponibles
-
-choisit une région dans une liste préférée
-
+```
 Start-Sleep -Seconds $delay
 $locations = Get-AzLocation | Where-Object { ... }
+```
 
+##7. Création du Resource Group##
 
-Intérêt Data Eng :
-
-Synapse n’est pas dispo partout.
-
-certaines régions peuvent être saturées (quotas/stock) pendant une formation → ce bloc essaie de trouver une région déployable.
-
-⚠️ Ton fichier contient une chaîne tronquée dans $preferred_list ("...urope"). Dans un script “propre”, on mettrait typiquement northeurope, westeurope, etc.
-
-7) Création du Resource Group
+```
 New-AzResourceGroup -Name $resourceGroupName -Location $Region | Out-Null
+```
 
+Avec cette action on va créer le Ressource Group (RG). Ceci permet de regrouper toutes les ressources Synapse + Storage + compute.
 
-Action : crée le RG.
+##8. Déploiement principal via un ARM template (setup.json)##
 
-Intérêt archi :
+L'étape suivante consiste à déployer l’infrastructure décrite dans le fichier ```setup.json``` en utilisant les instructions suivantes:
 
-le RG est l’unité de gouvernance pour le lab : cycle de vie, RBAC, suppression en fin de lab, coût.
-
-on regroupe toutes les ressources Synapse + Storage + compute.
-
-8) Déploiement principal via ARM template (setup.json)
-
-Variables :
-
-$synapseWorkspace = "synapse$suffix"
-$dataLakeAccountName = "datalake$suffix"
-$sparkPool = "spark$suffix"
-$sqlDatabaseName = "sql$suffix"
-
-
-Déploiement :
-
+```
 New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName `
   -TemplateFile "setup.json" `
   -Mode Complete `
@@ -154,142 +132,60 @@ New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName `
   -sqlPassword $sqlPassword `
   -uniqueSuffix $suffix `
   -Force
+```
+Les ressources qui seront crées dans cette infrastructure sont les suivantes:
+- Azure Synapse Workspace: ```$synapseWorkspace = "synapse$suffix"```
+- ADLS Gen2 / Storage Account ```(Data Lake): $dataLakeAccountName = "datalake$suffix"```
+- Spark pool (Synapse Spark): ```$sparkPool = "spark$suffix"```
+- Dedicated SQL pool ou base SQL dans Synapse: ```$sqlDatabaseName = "sql$suffix"```
 
-
-Action : déploie l’infrastructure décrite dans setup.json.
-
-Intérêt architecture Data Engineer (très pédagogique) :
-
-c’est de l’Infrastructure as Code : reproductible, versionnable, cohérent.
-
--Mode Complete : l’état du RG doit correspondre au template (attention : peut supprimer des ressources non décrites). Pour un lab, c’est utile pour garantir un environnement “propre”.
-
-Ressources très probablement créées par le template (à confirmer en ouvrant setup.json) :
-
-Azure Synapse Workspace
-
-ADLS Gen2 / Storage Account (Data Lake)
-
-Spark pool (Synapse Spark)
-
-Dedicated SQL pool ou base SQL dans Synapse (selon design du lab)
-
-possiblement : firewall rules, linked service au Data Lake, containers/folders, etc.
-
-Si tu veux, je peux aussi expliquer setup.json (ça donne une vision 100% claire des ressources créées). Il faut juste me fournir le fichier.
-
-9) (Optionnel / commenté) Data Explorer (Kusto) pool
+##9. (Optionnel / commenté) Data Explorer (Kusto) pool##
+```
 #Stop-AzSynapseKustoPool ...
+```
 
+Cette instruction (commenté) permet de stopper ou mettre en pause le pool Data Explorer. En effet, la partie Data Explorer (KQL) coûte et n’est pas toujours nécessaire pour cet exercice.
 
-Action : stop/pause un pool Data Explorer (commenté).
-
-Intérêt : la partie Data Explorer (KQL) coûte et n’est pas toujours nécessaire au Lab 1.
-
-Ressource : Kusto pool dans Synapse (si présent dans le template).
-
-10) Attribution de rôles RBAC sur le Data Lake
+##10. Attribution de rôles RBAC sur le Data Lake##
+```
 $subscriptionId = (Get-AzContext).Subscription.Id
 $userName = ((az ad signed-in-user show) | ConvertFrom-JSON).UserPrincipalName
 $id = (Get-AzADServicePrincipal -DisplayName $synapseWorkspace).id
 New-AzRoleAssignment -Objectid $id -RoleDefinitionName "Storage ...ageAccounts/$dataLakeAccountName" ...
 New-AzRoleAssignment -SignInName $userName -RoleDefinitionName "...ageAccounts/$dataLakeAccountName" ...
+```
 
+Avec ces instruction, on récupère l’utilisateur connecté (UserPrincipalName) et aussi le Service Principal / Managed Identity lié à Synapse (affiché comme service principal). Par la suite, on attribue des rôles RBAC sur le storage account. ceci est essentiel pour que Synapse (pipelines, Spark, SQL) puisse lire/écrire dans le Data Lake et pour que l’utilisateur puisse manipuler les données (upload, exploration, debug).
 
-Action :
+##11. Création du schéma SQL via sqlcmd (setup.sql)##
 
-récupère l’utilisateur connecté (UPN)
-
-récupère le Service Principal / Managed Identity lié à Synapse (affiché comme service principal)
-
-attribue des rôles RBAC sur le storage account
-
-Intérêt Data Eng / architecture :
-
-essentiel pour que :
-
-Synapse (pipelines, Spark, SQL) puisse lire/écrire dans le Data Lake
-
-l’utilisateur du lab puisse manipuler les données (upload, exploration, debug)
-
-montre la séparation “identités (user vs service)” et l’importance du least privilege (ici, on donne large pour simplifier le lab).
-
-⚠️ À cause des ... dans ton fichier, on ne voit pas exactement le rôle et le scope. La forme standard attendue ressemble à :
-
-rôle : Storage Blob Data Contributor ou Storage Blob Data Owner
-
-scope : /subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<account>
-
-11) Création du schéma SQL via sqlcmd (setup.sql)
+```
 sqlcmd -S "$synapseWorkspace.sql.azuresynapse.net" -U $sqlUser -P $sqlPassword -d $sqlDatabaseName -I -i setup.sql
+```
 
+Cette commande permet d'exécuter le script ```setup.sql``` sur l’endpoint SQL de Synapse ```*.sql.azuresynapse.net``` en utilisant la base/pool cible : ```$sqlDatabaseName```. Ceci permet de mettre en place la couche “serving / warehouse” : tables, schémas, objets nécessaires au lab. Ceci rend le lab reproductible : pas de création manuelle de tables.
 
-Action : exécute setup.sql sur l’endpoint SQL de Synapse.
+##12. Chargement des données dans SQL via bcp##
 
-Intérêt Data Eng :
-
-met en place la couche “serving / warehouse” : tables, schémas, objets nécessaires au lab.
-
-rend le lab reproductible : pas de création manuelle de tables.
-
-Ressources :
-
-endpoint SQL Synapse : *.sql.azuresynapse.net
-
-base/pool cible : $sqlDatabaseName
-
-fichier local : setup.sql
-
-12) Chargement des données dans SQL via bcp
-
-Boucle :
-
+```
 Get-ChildItem "./data/*.txt" -File | Foreach-Object {
     $file = $_.FullName
     $table = $_.Name.Replace(".txt","")
     bcp dbo.$table in $file -S "<server>" -U $sqlUser -P $sqlPassword -d $sqlDatabaseName -f <formatfile> ...
 }
 
+```
+Pour chaque fichier ```.txt``` dans le répertoire ```./data/```, on récupère le nom de la table (même nom que le fichier), on charge en bulk dans ```dbo.<table>``` via bcp en utilisant le un fichier .fmt (format) associé. Cette opération illustre une approche “bulk load” (ingestion rapide) vers une couche SQL analytique. En pratique, on ferait souvent COPY INTO / PolyBase / pipelines, mais bcp est très utile pour un setup rapide de lab.
 
-Action :
-
-pour chaque fichier .txt dans ./data/
-
-déduit le nom de la table (même nom que le fichier)
-
-charge en bulk dans dbo.<table> via bcp
-
-utilise un fichier .fmt (format) associé
-
-Intérêt architecture :
-
-illustre une approche “bulk load” (ingestion rapide) vers une couche SQL analytique.
-
-en pratique, on ferait souvent COPY INTO / PolyBase / pipelines, mais bcp est très utile pour un setup rapide de lab.
-
-⚠️ la ligne bcp est tronquée dans ton fichier (il y a ...). Mais on voit déjà des options typiques :
-
--q (quoted identifiers)
-
--k (conserve null values)
-
--E (keep identity values)
-
--b 5000 (batch size 5000)
-
-13) Pause du SQL Pool (optimisation des coûts)
+##13. Pause du SQL Pool (optimisation des coûts)##
+```
 Suspend-AzSynapseSqlPool -WorkspaceName $synapseWorkspace -Name $sqlDatabaseName -AsJob
+```
 
+Cette instruction met en pause le pool SQL (dedicated). Ceci est très important en formation : un Dedicated SQL Pool coûte tant qu’il est “online”. Ceci démontre également une bonne pratique FinOps : arrêter quand non utilisé.
 
-Action : met en pause le pool SQL (dedicated).
-
-Intérêt Data Eng / gouvernance :
-
-très important en formation : un Dedicated SQL Pool coûte tant qu’il est “online”.
-
-démontre une bonne pratique FinOps : arrêter quand non utilisé.
-
-14) Upload de fichiers CSV dans le Data Lake (container files)
+##14. Upload de fichiers CSV dans le Data Lake (container files)##
+```
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $dataLakeAccountName
 $storageContext = $storageAccount.Context
 
@@ -297,75 +193,26 @@ Get-ChildItem "./files/*.csv" -File | Foreach-Object {
     $blobPath = "sales_data/$($_.Name)"
     Set-AzStorageBlobContent -File $_.FullName -Container "files" -Blob $blobPath -Context $storageContext
 }
+```
 
+Avec ces instruction, on récupère le storage account et son contexte. On charge ensuite tous les .csv vers le container ```files``` et on les place sous un “répertoire logique” : ```sales_data/```. Ceci constitue la zone “landing / raw” (même si ici on charge directement dans un container). Ces fichiers seront par la suite utilisés pour alimenter les labs Spark / serverless SQL / pipelines (lecture depuis ADLS).
 
-Action :
-
-récupère le storage account et son contexte
-
-charge tous les .csv vers le container files
-
-les place sous un “répertoire logique” : sales_data/
-
-Intérêt architecture Data Eng :
-
-constitue la zone “landing / raw” (même si ici on charge directement dans un container).
-
-alimente les labs Spark / serverless SQL / pipelines (lecture depuis ADLS).
-
-montre le pattern “datalake folder structure” (ex: sales_data/).
-
-Ressource : Storage Account ADLS Gen2 (utilisé via API blob), container files, blobs sales_data/*.csv.
-
-15) Création d’un script KQL (commenté)
+##15. Création d’un script KQL (commenté)##
+```
 # New-AzSynapseKqlScript -WorkspaceName $synapseWorkspace -DefinitionFile "./files/ingest-data.kql"
+```
+Il s'agit d'une instruction commentée dans le script qu'on aurait pu utiliser pour déployer un script KQL dans Synapse (Data Explorer). ceci nous permet d'initialiser du contenu KQL pour ingestion/queries.
 
-
-Action : aurait déployé un script KQL dans Synapse (Data Explorer).
-
-Intérêt : initialiser du contenu KQL pour ingestion/queries.
-
-État : désactivé à cause d’une erreur “Bad Request” (d’après le commentaire).
-
-Comment le présenter aux participants (angle “ce qui se passe en arrière-plan”)
-
-Tu peux raconter le script comme un pipeline d’industrialisation :
-
-Préparer l’outil (modules, providers)
-
-Sécuriser le contexte (bonne subscription)
-
-Paramétrer l’accès SQL (login + password)
-
-Déployer l’infrastructure (template ARM)
-
-Donner les droits (RBAC user + Synapse)
-
-Initialiser la couche warehouse (setup.sql)
-
-Charger des données (bcp)
-
-Optimiser les coûts (pause SQL pool)
-
-Préparer la zone data lake (upload CSV)
-
-Si tu veux aller encore plus loin (utile pour un cours Synapse)
-
-Partage-moi aussi setup.json et setup.sql :
-
-je te ferai la liste exacte des ressources et paramètres (Spark node size, containers, firewall, managed identity, etc.)
-
-et la lecture détaillée du schéma SQL créé (tables, distributions, indexes si dédiés)
-
-Je peux te proposer une slide “Architecture Lab 1” :
-
-RG → Synapse Workspace → Spark Pool → SQL Pool → ADLS Gen2
-
-identité (user vs managed identity) + RBAC
-
-flux d’ingestion (CSV→ADLS, TXT→SQL)
-
-Si tu m’envoies setup.json et setup.sql, je te fais l’explication complète et parfaitement alignée avec ce qui est réellement déployé.
+Ce script PowerShell exécuté se présente comme un pipeline d’industrialisation permettant de:
+- Préparer l’outil (modules, providers)
+- Sécuriser le contexte (bonne subscription)
+- Paramétrer l’accès SQL (login + password)
+- Déployer l’infrastructure (template ARM)
+- Donner les droits (RBAC user + Synapse)
+- Initialiser la couche warehouse (setup.sql)
+- Charger des données (bcp)
+- Optimiser les coûts (pause SQL pool)
+- Préparer la zone data lake (upload CSV)
 
 ##Découvrez Synapse Studio
 
