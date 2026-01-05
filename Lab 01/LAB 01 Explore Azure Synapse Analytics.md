@@ -238,72 +238,100 @@ Synapse Studio est une interface Web que vous pouvez utiliser pour travailler av
 
 ─	Un onglet **Workspace** contenant les bases de données définies dans l'espace de travail (y compris les bases de données SQL dédiées et les bases de données Data Explorer).
 ─	Un onglet **Linked** contenant des sources de données liées à l'espace de travail, y compris le stockage Azure Data Lake.
+
     ![Azure portal with a cloud shell pane](./images/006.png)  
 
 17. Affichez la page **Develop**. C'est ici que vous pouvez définir des scripts et d'autres actifs utilisés pour développer des solutions de traitement de données.
+
  ![Azure portal with a cloud shell pane](./images/007.png)
  
 18. Affichez la page **Integrate**. Vous utilisez cette page pour gérer les actifs d'ingestion et d'intégration de données ; tels que des pipelines pour transférer et transformer des données entre des sources de données.
+
 ![Azure portal with a cloud shell pane](./images/008.png)
 
 19. Affichez la page **Monitor**. C'est ici que vous pouvez observer les travaux de traitement de données pendant leur exécution et afficher leur historique.
+
 ![Azure portal with a cloud shell pane](./images/009.png)
+
 20. Affichez la page **Manage**. C'est là que vous gérez les pools, les runtimes et les autres actifs utilisés dans votre espace de travail Azure Synapse. 
+
 ![Azure portal with a cloud shell pane](./images/010.png)
-Voir chacun des onglets de la section Pools Analytics et notez que votre espace de travail comprend les pools suivants :
-─	Pools SQL :
-o	Intégré : un pool SQL sans serveur que vous pouvez utiliser à la demande pour explorer ou traiter des données dans un lac de données à l'aide de commandes SQL.
-o	sqlxxxxxxx : un pool SQL dédié qui héberge une base de données d'entrepôt de données relationnelles.
-─	Groupes Apache Spark :
-o	sparkxxxxxxx : que vous pouvez utiliser à la demande pour explorer ou traiter des données dans un lac de données en utilisant des langages de programmation comme Scala ou Python.
-─	Pools d'explorateur de données :
-o	adxxxxxxxx : un pool d'explorateurs de données que vous pouvez utiliser pour analyser les données à l'aide du langage de requête Kusto (KQL).
+
+21. Voir chacun des onglets de la section **Pools Analytics** et notez que votre espace de travail comprend les pools suivants :
+─	**Pools SQL** :
+	+ Intégré : un pool SQL **sans serveur** que vous pouvez utiliser à la demande pour explorer ou traiter des données dans un lac de données à l'aide de commandes SQL.
+	+ sqlxxxxxxx : un pool SQL **dédié** qui héberge une base de données d'entrepôt de données relationnelles.
+─	Groupes **Apache Spark** :
+	+ sparkxxxxxxx : que vous pouvez utiliser à la demande pour explorer ou traiter des données dans un lac de données en utilisant des langages de programmation comme Scala ou Python.
+─	Pools d'explorateur de données (n'a pas été crée car l'instruction est décommentée dans le script) :
+	+ adxxxxxxxx : un pool d'explorateurs de données que vous pouvez utiliser pour analyser les données à l'aide du langage de requête Kusto (KQL).
  
-Ingérer des données avec un pipeline
-L'une des principales tâches que vous pouvez effectuer avec Azure Synapse Analytics consiste à définir des pipelines qui transfèrent (et si nécessaire, transforment) les données d'un large éventail de sources dans votre espace de travail pour analyse.
-Utiliser la tâche Data Copy pour créer un pipeline
-21. Dans Synapse Studio, sur la page Home, sélectionnez Ingest pour ouvrir l'outil Copy Data.
+## Ingérer des données avec un pipeline
+
+L'une des principales tâches que vous pouvez effectuer avec Azure Synapse Analytics consiste à définir des **pipelines** qui transfèrent (et si nécessaire, transforment) les données d'un large éventail de sources dans votre espace de travail pour analyse.
+### Utiliser la tâche Data Copy pour créer un pipeline
+22. Dans Synapse Studio, sur la page **Home**, sélectionnez **Ingest** pour ouvrir l'outil **Copy Data**.
+
+![Azure portal with a cloud shell pane](./images/011.png)
  
-22. Dans l'outil Copy Data, à l'étape Propriétés, assurez-vous que Built-in copy task et Run once now sont sélectionnés, puis cliquez sur Suivant >.
+23. Dans l'outil **Copy Data**, à l'étape **Propriétés**, assurez-vous que **Built-in copy task** et **Run once now** sont sélectionnés, puis cliquez sur **Suivant >**.
+
+![Azure portal with a cloud shell pane](./images/012.png)
   
-23. À l'étape Source, dans la sous-étape Dataset, sélectionnez les paramètres suivants :
+24. À l'étape **Source**, dans la sous-étape **Dataset**, sélectionnez les paramètres suivants :
 ─	Type de source : Tous
-─	Connexion : Créez une nouvelle connexion et dans le volet linked services qui s'affiche, sous l'onglet Fichier, sélectionnez HTTP. 
+─	Connexion : Créez une **nouvelle connexion** et dans le volet **linked services** qui s'affiche, sous l'onglet **Fichier**, sélectionnez **HTTP**. 
  
-24. Continuez ensuite et créez une connexion à un fichier de données en utilisant les paramètres suivants :
-─	Nom : Products
+![Azure portal with a cloud shell pane](./images/013.png)
+
+25. Continuez ensuite et créez une connexion à un fichier de données en utilisant les paramètres suivants :
+─	Nom : **Products**
 ─	Description : liste de produits via http
-─	Connectez-vous via le runtime d'intégration : AutoResolveIntegrationRuntime
-─	URL de base : https://raw.githubusercontent.com/MicrosoftLearning/dp-203-azure-data-engineer/master/Allfiles/labs/01/adventureworks/products.csv
-─	Validation du certificat du serveur : Activer
+─	Connectez-vous via le runtime d'intégration : **AutoResolveIntegrationRuntime**
+─	URL de base : https://raw.githubusercontent.com/SBSsbs/Azure-Synapse-Analytics/refs/heads/main/Lab%2001/01/adventureworks/products.csv
+─	Validation du certificat du serveur : Activer (Enable)
 ─	Type d'authentification : Anonyme
  
-25. Avant de créer la connexion on peut la vérifier en utilisant le bouton Tester la connexion.
-26. Après avoir créé la connexion, sur la page Magasin de données source (Source data store), assurez-vous que les paramètres suivants sont sélectionnés, puis sélectionnez Suivant > :
+![Azure portal with a cloud shell pane](./images/014.png)
+
+26. Avant de créer la connexion on peut la vérifier en utilisant le bouton **Tester la connexion**.
+27. Après avoir créé la connexion, sur la page **Magasin de données source** (**Source data store**), assurez-vous que les paramètres suivants sont sélectionnés:
 ─	URL relative : laisser vide
 ─	Méthode de requête : GET
 ─	En-têtes supplémentaires : laissez vide
 ─	Copie binaire : non sélectionnée
 ─	Délai d'expiration de la demande : laissez le champ vide
 ─	Nombre maximal de connexions simultanées : laissez le champ vide
-27. À l'étape Source, dans la sous-étape Configuration, sélectionnez Aperçu des données pour afficher un aperçu des données produit que votre pipeline va ingérer, puis fermez l'aperçu.
+28. Sélectionnez **Suivant >**
+
+![Azure portal with a cloud shell pane](./images/015.png)
+
+29. À l'étape **Source**, dans la sous-étape **Configuration**, sélectionnez **Aperçu des données** pour afficher un aperçu des données produit que votre pipeline va ingérer, puis fermez l'aperçu.
+
+![Azure portal with a cloud shell pane](./images/016.png)
  
-28. Après avoir pré-visualisé les données, sur la page Paramètres du format de fichier, assurez-vous que les paramètres suivants sont sélectionnés, puis sélectionnez Suivant > :
+30. Après avoir pré-visualisé les données, sur la page Paramètres du format de fichier, assurez-vous que les paramètres suivants sont sélectionnés, puis sélectionnez **Suivant >** :
 ─	Format de fichier : texte délimité
 ─	Délimiteur de colonne : virgule (,)
 ─	Délimiteur de ligne : saut de ligne (\n)
 ─	Première ligne comme en-tête : sélectionné
 ─	Type de compression : Aucun
-29. À l'étape Destination, dans la sous-étape Dataset, sélectionnez les paramètres suivants :
-─	Type de destination : Azure Data Lake Storage Gen 2
+31. À l'étape **Destination**, dans la sous-étape **Dataset**, sélectionnez les paramètres suivants :
+─	Type de destination : **Azure Data Lake Storage Gen 2**
 ─	Connexion : sélectionnez la connexion existante à votre magasin de lac de données (celle-ci a été créée pour vous lorsque vous avez créé l'espace de travail).
-30. Après avoir sélectionné la connexion, à l'étape Destination/Jeu de données, assurez-vous que les paramètres suivants sont sélectionnés, puis sélectionnez Suivant > :
-─	Chemin du dossier : files/product_data
-─	Nom du fichier : produits.csv
+
+![Azure portal with a cloud shell pane](./images/017.png)
+
+32. Après avoir sélectionné la connexion, à l'étape **Destination/Jeu de données**, assurez-vous que les paramètres suivants sont sélectionnés, puis sélectionnez **Suivant >** :
+─	Chemin du dossier : **files/product_data**
+─	Nom du fichier : **produits.csv**
 ─	Comportement de copie : aucun
 ─	Nombre maximal de connexions simultanées : laissez le champ vide
 ─	Taille du bloc (Mo) : Laisser vide
-31. À l'étape Destination, à la sous-étape Configuration, sur la page Paramètres du format de fichier, assurez-vous que les propriétés suivantes sont sélectionnées. Sélectionnez ensuite Suivant > :
+
+![Azure portal with a cloud shell pane](./images/018.png)
+
+33. À l'étape **Destination**, à la sous-étape **Configuration**, sur la page **Paramètres du format de fichier**, assurez-vous que les propriétés suivantes sont sélectionnées. Sélectionnez ensuite **Suivant >** :
 ─	Format de fichier : texte délimité
 ─	Délimiteur de colonne : virgule (,)
 ─	Délimiteur de ligne : saut de ligne (\n)
@@ -311,28 +339,48 @@ Utiliser la tâche Data Copy pour créer un pipeline
 ─	Type de compression : Aucun
 ─	Nombre maximum de lignes par fichier : laissez vide
 ─	Préfixe du nom de fichier : laissez vide
-32. À l'étape Paramètres, saisissez les paramètres suivants, puis cliquez sur Suivant > :
-─	Nom de la tâche : copier des produits
+
+34. À l'étape Paramètres, saisissez les paramètres suivants, puis cliquez sur Suivant > :
+─	Nom de la tâche : **copier des produits**
 ─	Description de la tâche : Copier les données des produits
 ─	Tolérance aux pannes : laisser vide
 ─	Activer la journalisation : non sélectionné
 ─	Activer la mise en scène : non sélectionné
-33. À l'étape Réviser et terminer, à la sous-étape Réviser, lisez le résumé, puis cliquez sur Suivant >.
-34. À l'étape Déploiement, attendez que le pipeline soit déployé, puis cliquez sur Terminer.
+
+![Azure portal with a cloud shell pane](./images/019.png)
+
+35. À l'étape **Réviser et terminer**, à la sous-étape **Réviser**, lisez le résumé, puis cliquez sur **Suivant >**.
+36. À l'étape **Déploiement**, attendez que le pipeline soit déployé, puis cliquez sur **Terminer**.
+
+![Azure portal with a cloud shell pane](./images/020.png)
  
-35. Dans Synapse Studio, sélectionnez la page Monitor, et dans l'onglet Pipeline runs, attendez que le pipeline Copy products se termine avec un statut Réussi (vous pouvez utiliser le bouton ↻ Refresh sur la page Pipeline runs pour actualiser le statut).
-36. Affichez la page Intégrer et vérifiez qu'elle contient désormais un pipeline nommé Copier les produits.
+37. Dans **Synapse Studio**, sélectionnez la page **Monitor**, et dans l'onglet **Pipeline runs**, attendez que le pipeline **Copy products** se termine avec un statut **Réussi** (vous pouvez utiliser le bouton **↻ Refresh** sur la page **Pipeline runs** pour actualiser le statut).
+
+![Azure portal with a cloud shell pane](./images/021.png)
+
+38. Affichez la page **Intégrer** et vérifiez qu'elle contient désormais un pipeline nommé **Copier les produits**.
  
-Afficher les données ingérées
-37. Sur la page Données, sélectionnez l'onglet Linked et développez la hiérarchie Azure Data Lake Storage Fichiers produit jusqu'à ce que vous voyiez le stockage des fichiers pour votre espace de travail Synapse. Sélectionnez ensuite le stockage de fichiers pour vérifier qu'un dossier nommé product_data contenant un fichier nommé products.csv a été copié à cet emplacement, comme illustré ici :
+![Azure portal with a cloud shell pane](./images/022.png)
+
+## Afficher les données ingérées
+
+39. Sur la page **Données**, sélectionnez l'onglet **Linked** et développez la hiérarchie **Azure Data Lake Storage** Fichiers produit jusqu'à ce que vous voyiez le stockage des fichiers pour votre espace de travail Synapse. 
+
+40. Sélectionnez ensuite le stockage de fichiers pour vérifier qu'un dossier nommé **product_data** contenant un fichier nommé **products.csv** a été copié à cet emplacement, comme illustré ici :
  
-38. Cliquez avec le bouton droit sur le fichier de données products.csv et sélectionnez Aperçu pour visualiser les données ingérées. Fermez ensuite l'aperçu.
+![Azure portal with a cloud shell pane](./images/023.png)
+
+41. Cliquez avec le bouton droit sur le fichier de données **products.csv** et sélectionnez **Aperçu** pour visualiser les données ingérées. Fermez ensuite l'aperçu.
+
+![Azure portal with a cloud shell pane](./images/024.png)
  
-Utiliser un pool SQL sans serveur pour analyser les données
-Maintenant que vous avez ingéré des données dans votre espace de travail, vous pouvez utiliser Synapse Analytics pour les interroger et les analyser. L'une des façons les plus courantes d'interroger des données consiste à utiliser SQL, et dans Synapse Analytics, vous pouvez utiliser un pool SQL sans serveur pour exécuter du code SQL sur des données dans un lac de données.
-39. Dans Synapse Studio, cliquez avec le bouton droit sur le fichier products.csv dans le stockage de fichiers de votre espace de travail Synapse, pointez sur Nouveau script SQL et sélectionnez Sélectionner les 100 premières lignes.
+## Utiliser un pool SQL sans serveur pour analyser les données
+
+Maintenant que vous avez ingéré des données dans votre espace de travail, vous pouvez utiliser Synapse Analytics pour les interroger et les analyser. L'une des façons les plus courantes d'interroger des données consiste à utiliser **SQL**, et dans Synapse Analytics, vous pouvez utiliser un **pool SQL sans serveur** pour exécuter du code SQL sur des données dans un lac de données.
+
+42. Dans Synapse Studio, cliquez avec le bouton droit sur le fichier products.csv dans le stockage de fichiers de votre espace de travail Synapse, pointez sur Nouveau script SQL et sélectionnez Sélectionner les 100 premières lignes.
  
-40. Dans le volet SQL Script 1 qui s'ouvre, passez en revue le code SQL qui a été généré, qui devrait ressembler à ceci :
+43. Dans le volet SQL Script 1 qui s'ouvre, passez en revue le code SQL qui a été généré, qui devrait ressembler à ceci :
 -- This is auto-generated code
  SELECT
      TOP 100 *
